@@ -1,31 +1,40 @@
 # Nome do Projeto
 
-A parte da api ainda não está feita, mas a ideia é conectar um bd postgress para guardar algumas informações dos albuns.
+A parte das APIs ainda não estão completas, mas a ideia é conectar um bd postgress para guardar algumas informações dos albuns.
 
-Deste forma, os arquivos úteis para vocês são: [index.html](./index.html) e [index.js](./index.js), que é onde tem as config de login.
+Deste forma, os arquivos úteis para vocês são: [`index.html`](./index.html), [`index.js`](./index.js) e as [`APIs`](./api)
 A continuação, que é a conexão com o google photos ainda não descobri como proceder.
 
 Basicamente, esse projeto tem um front onde ousuário poderá fazer login.
 
-## Instalação
+### Instalação
 
 1. Clone o repositório: `git clone https://github.com/seu-usuario/seu-repositorio.git`
-2. Instale as dependências (caso vá desenvolver a api): `npm install`
+2. Instale as dependências (caso vá desenvolver a api): `npm install` em no diretorio `./api`
 
-## Uso da api
+### Uso da API com o google
+Normalmente está sendo executado sem precisar do FRONTEND e da API de suport ao front
 
-1. Inicie o servidor: `npm start`
-2. Acesse o aplicativo em `http://localhost:3333`
+1. Configure o arquivo: [`credentials.json`](./api/google/credentials.json)
+2. Inicie o servidor: `npm run google`
 
-## Uso do front
+### Uso da API de suporte
+Normalmente está sendo usada junto ao frontend
+
+2. Inicie o servidor: `npm start`
+3. Acesse o aplicativo em `http://localhost:3333`
+
+### Uso do FRONTEND
+Normalmente está sendo sem a api de suport
 
 1. Utilize o `LiveServer`
-   1. acesse a aba de `extensões` do seu vscode e digite `ritwickdey.LiveServer`
-   2. clique em instalar
-   3. reinicie o seu vscode
-   4. clique no ícone `Go Live` na barra inferior a direita
+2. Se não o tiver:
+   - acesse a aba de `extensões` do seu vscode e digite `ritwickdey.LiveServer`
+   - clique em instalar
+   - reinicie o seu vscode
+   - clique no ícone `Go Live` na barra inferior a direita
 
-## Contribuição
+### Contribuição
 
 1. Faça o fork do projeto
 2. Crie uma branch para sua feature: `git checkout -b minha-feature`
@@ -33,6 +42,6 @@ Basicamente, esse projeto tem um front onde ousuário poderá fazer login.
 4. Faça o push para a sua branch: `git push origin minha-feature`
 5. Abra um Pull Request
 
-## Licença
+### Licença
 
 Este projeto está licenciado sob a licença MIT - consulte o arquivo [LICENSE.md](./LICENSE.md) para obter detalhes.
