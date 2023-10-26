@@ -1,17 +1,52 @@
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import { cwd } from 'process';
-import { authenticate } from '@google-cloud/local-auth';
-import { google } from 'googleapis';
-import axios from "axios";
+require("dotenv").config();
+const fs = require("fs").promises;
+const join = require("path").join;
+const cwd = require("process").cwd;
+const authenticate = require("@google-cloud/local-auth").authenticate;
+const { google } = require("googleapis");
+const { OAuth2Client } = require("google-auth-library");
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/photoslibrary', 'https://www.googleapis.com/auth/drive'];
+const SCOPES = [
+  "https://www.googleapis.com/auth/photoslibrary",
+  "https://www.googleapis.com/auth/drive",
+];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = join(cwd(), './google/token.json');
-const CREDENTIALS_PATH = join(cwd(), './google/credentials.json');
+
+const TOKEN_PATH = join(cwd(), "./google/token.json");
+const CREDENTIALS_PATH = join(cwd(), "./google/credentials.json");
+
+async function criaCredenciaisFile() {
+  const jsonContent = JSON.stringify({
+    installed: {
+      client_id: process.env.CLIENT_ID,
+      project_id: process.env.PROJECT_ID,
+      auth_uri: process.env.AUTH_URI,
+      token_uri: process.env.TOKEN_URI,
+      auth_provider_x509_cert_url: process.env.AUTH_PROVIDER_X509_CERT_URL,
+      client_secret: process.env.CLIENT_SECRET,
+      redirect_uris: [process.env.REDIRECT_URI],
+    },
+  });
+
+  console.log(process.env.CLIENT_ID, "\naaaaaaaaaaaaaaaaa CLIENT_ID\n\n");
+
+  try {
+    await fs.open(CREDENTIALS_PATH, "r");
+    console.log("O arquivo JSON já existe.");
+  } catch (error) {
+    console.log("O arquivo não existe. Criando...");
+    try {
+      await fs.writeFile(CREDENTIALS_PATH, jsonContent, "utf8");
+      console.log("Arquivo JSON foi salvo.");
+    } catch (err) {
+      console.log("Ocorreu um erro ao escrever o objeto JSON no arquivo.");
+      console.log(err);
+    }
+  }
+}
 
 /**
  * Reads previously authorized credentials from the save file.
@@ -39,85 +74,112 @@ async function saveCredentials(client) {
   const keys = JSON.parse(content);
   const key = keys.installed || keys.web;
   const payload = JSON.stringify({
-    type: 'authorized_user',
+    type: "authorized_user",
     client_id: key.client_id,
     client_secret: key.client_secret,
     refresh_token: client.credentials.refresh_token,
+    access_token: client.credentials.access_token,
   });
   await fs.writeFile(TOKEN_PATH, payload);
 }
 
 /**
  * Load or request or authorization to call APIs.
- *
+ * @return {Promise<OAuth2Client>}
  */
 async function authorize() {
   let client = await loadSavedCredentialsIfExist();
   if (client) {
     return client;
   }
+
   client = await authenticate({
     scopes: SCOPES,
     keyfilePath: CREDENTIALS_PATH,
   });
+
   if (client.credentials) {
     await saveCredentials(client);
   }
-  return client;
+
+  const credentials = await fs.readFile(CREDENTIALS_PATH);
+  const credentialsJson = JSON.parse(credentials);
+  const { client_secret, client_id, redirect_uris } = credentialsJson.installed;
+  const tokens = await fs.readFile(TOKEN_PATH);
+
+  const myAuthclient = new OAuth2Client(
+    client_secret,
+    client_id,
+    redirect_uris
+  );
+
+  myAuthclient.setCredentials(JSON.parse(tokens));
+
+  return myAuthclient;
 }
 
 /**
  * Lists the names and IDs of up to 10 files.
  * @param {OAuth2Client} authClient An authorized OAuth2 client.
+ * @returns {Promise<OAuth2Client>}
  */
-async function listFiles(authClient) {
-  const drive = google.drive({version: 'v3', auth: authClient});
-  const res = await drive.files.list({
-    pageSize: 10,
-    fields: 'nextPageToken, files(id, name)',
-  });
-
-  console.log(authClient, "\naaaaaaaaaaaaaaaaa token drive\n")
-  
-  // const files = res.data.files;
-  // if (files.length === 0) {
-  //   console.log('No files found.');
-  //   return;
-  // }
-
-  // console.log('Files:');
-  // files.map((file) => {
-  //   console.log(`${file.name} - (${file.id}) - ${file.webViewLink}`);
-  // });
-}
-
+// async function
 
 /**
  * Lists the names and IDs of up to 10 files.
  * @param {OAuth2Client} authClient An authorized OAuth2 client.
  */
 async function photosList(authClient) {
-  const URL = "https://photoslibrary.googleapis.com/v1/mediaItems:search?pageSize=10";
+  const URL = "https://photoslibrary.googleapis.com/v1/mediaItems";
 
-    const res = await fetch(URL, {
-      method: "GET",
-      contentType: "application/json",
-      headers: {
-        Authorization: `Bearer ${authClient.credentials.access_token}`,
-      },
-    });
+  // const res = await fetch(URL, {
+  //   method: "GET",
+  //   contentType: "application/json",
+  //   headers: {
+  //     Authorization: `Bearer ${access_token}`,
+  //   },
+  // });
 
-    console.log(authClient, "\naaaaaaaaaaaaaaaaa token photos\n");
+  const access_token = (await authClient.getAccessToken()).res.data;
+  console.log(
+    access_token,
+    "\naaaaaaaaaaaaaaaaa authClient.getAccessToken()\n\n"
+  );
 
-    const files = res.data;
-    if (files.length === 0) {
-      console.log("No files found.");
-      return;
-    }
+  const res = await authClient.request({
+    method: "GET",
+    url: URL,
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+  });
 
-    console.log("Files:");
-    files.map((file) => {
-      console.log(`${file.name} (${file.id})`);
-    });
+  console.log(
+    res.data["nextPageToken"],
+    "\naaaaaaaaaaaaaaaaa res nextPageToken \n\n"
+  );
+
+  const files = [res.data["mediaItems"], res.data["nextPageToken"]];
+  if (files.length === 0) {
+    console.log("No files found.");
+    return;
+  }
+  
+  console.log(`Files:\n`);
+  files[0].map((file) => {
+    const repeat1 = "_".repeat(5);
+    const repeat2 = "----".repeat(32);
+    console.log(`\n${repeat2}`);
+    console.log(
+      `${repeat1}File Name: ${file.filename}\n ${repeat1.repeat(
+        2
+      )} Fille ID: (${file.id})`
+    );
+    console.log(`\n${repeat2}`);
+  });
+  console.log(files[1],`\n\n\n`);
 }
-authorize().then(photosList).catch(console.error);
+
+criaCredenciaisFile().then(authorize().then(photosList).catch(console.error));

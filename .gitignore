@@ -1,2 +1,8 @@
 node_modules/
-.node-persist/
+node-persist/
+```
+credentials.json
+token.json
+
+.env*
+```
