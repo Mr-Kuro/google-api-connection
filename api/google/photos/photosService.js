@@ -47,9 +47,11 @@ async function albumsList() {
       },
     });
 
-    console.log("Requeste aceita com sucesso.");
+    console.log("Requisição aceita com sucesso.");
 
-    if(res.status !== 200) { throw new Error};
+    if (res.status !== 200) {
+      throw new Error();
+    }
     return printAndReturn({ ...res.data }, "albums");
   } catch (err) {
     console.log(err, "err listAlbums");
@@ -58,10 +60,85 @@ async function albumsList() {
 }
 
 /**
+ * Criar os albuns.
+ */
+async function albumsCreate(title) {
+  const authorizations = new Authorizations();
+  const authClient = await authorizations.authorize();
+  const URL = "https://photoslibrary.googleapis.com/v1/albums";
+  const access_token = (await authClient.getAccessToken()).res.data;
+  console.log(title, "---------");
+  try {
+    console.log("Criando album...");
+    const res = await authClient.request({
+      method: "POST",
+      url: URL,
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        album: {
+          title,
+        },
+      }),
+    });
+
+    console.log("Álbum criado com sucesso.");
+
+    if (!res.status === 200) {
+      throw new Error();
+    }
+    console.log(res.data);
+    return { ...res.data };
+  } catch (err) {
+    console.log(err, "err albumsCreate");
+    return { msg: "Erro ao criar albuns" };
+  }
+}
+
+async function albumsUpdate(title, id) {
+  const authorizations = new Authorizations();
+  const authClient = await authorizations.authorize();
+  const URL = `https://photoslibrary.googleapis.com/v1/albums/{${id}}?&${title}`;
+  const access_token = (await authClient.getAccessToken()).res.data;
+  console.log(title, id, "---------");
+  try {
+    console.log("Atualizando album...");
+    const res = await authClient.request({
+      method: "PATCH",
+      url: URL,
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        album: {
+          title,
+        },
+      }),
+    });
+
+    console.log("Álbum atualizado com sucesso.");
+
+    if (!res.status === 200) {
+      throw new Error();
+    }
+    console.log(res.data);
+    return { ...res.data };
+  } catch (err) {
+    console.log(err, "err albumsUpdate");
+    return { msg: "Erro ao atualizar album" };
+  }
+}
+
+/**
  *  printa e retorna a resposta das requisições.
  */
 function printAndReturn(files, keyName) {
-  if (!files[0] || files[0].length === 0) {
+  if (files[0]) {
     console.log("lista vazia");
     return { msg: "lista vazia" };
   }
@@ -85,4 +162,6 @@ function printAndReturn(files, keyName) {
 module.exports = {
   photosList,
   albumsList,
+  albumsCreate,
+  albumsUpdate,
 };

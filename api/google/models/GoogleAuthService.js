@@ -15,9 +15,8 @@ class GoogleAuthService {
     this.CREDENTIALS_PATH = this.join(this.cwd(), "./google/credentials.json");
   }
 
-  printLog(logMSG, err = '') {
-    this.TOKEN_PATH
-    console.log('\n',logMSG, err);
+  printLog(logMSG, err = "") {
+    console.log("\n", logMSG, err);
   }
 
   async criaCredenciaisFile() {
@@ -74,8 +73,7 @@ class GoogleAuthService {
    */
   async saveToken(client) {
     this.printLog("Salvando Token...");
-    const content = await this.fs.readFile(this.CREDENTIALS_PATH);
-    const keys = JSON.parse(content);
+    const keys = JSON.parse(await this.fs.readFile(this.CREDENTIALS_PATH));
     const key = keys.installed || keys.web;
     try {
       const payload = JSON.stringify({
@@ -118,7 +116,9 @@ class GoogleAuthService {
         await this.saveToken(client);
       }
 
-      const credentials = JSON.parse(await this.fs.readFile(this.CREDENTIALS_PATH));
+      const credentials = JSON.parse(
+        await this.fs.readFile(this.CREDENTIALS_PATH)
+      );
       const { client_secret, client_id, redirect_uris } =
         credentials["installed" || "web"];
       const token = await this.fs.readFile(this.TOKEN_PATH);
