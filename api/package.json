@@ -1,16 +1,23 @@
 {
-  "name": "album-maker-api",
+  "name": "google-api-connection",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js",
-    "start": "node app.js",
-    "google": "nodemon ./google/index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "type": "commonjs",
-  "keywords": [],
+  "keywords": [
+    "google-api",
+    "drive-api",
+    "photos-api",
+    "express",
+    "nodejs",
+    "sequelize",
+    "postgres"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
