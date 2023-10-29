@@ -1,31 +1,32 @@
 # Nome do Projeto
 
-A parte das APIs ainda não estão completas, mas a ideia é conectar um bd postgress para guardar algumas informações dos albuns.
+A integração com as APIs externas do google estão completas, faltando apenas algumas evoluções. O objetivo agora é conectar um BD postgress para guardar algumas informações dos retornos dessas APIs.
 
-Deste forma, os arquivos úteis para vocês são: [`index.html`](./index.html), [`index.js`](./index.js) e as [`APIs`](./api)
-A continuação, que é a conexão com o google photos ainda não descobri como proceder.
+Vale ressaltar que o frontend ainda está em desenvolvimento, e que o foco atual e completar as demandas de evolução da API. Futuramente Teremos uma pasta para o nosso front.
 
-Basicamente, esse projeto tem um front onde ousuário poderá fazer login.
+Desta forma, os arquivos úteis para vocês estão em: [`./api`](./api), começando pelo [`index.js`](./api/index.js)
+A conexão com o google photos fotos foi implementada, logo está pronta para ser utilizada.
+
+Basicamente, a ideia do projeto é: ter um front, onde o usuário poderá fazer login e navegar pelas rotas. Esse front, claro, estará integrado a nossa API.
 
 ### Instalação
 
-1. Clone o repositório: `git clone https://github.com/seu-usuario/seu-repositorio.git`
-2. Instale as dependências (caso vá desenvolver a api): `npm install` em no diretorio `./api`
+1. Clone o repositório: `git clone https://github.com/Mr-Kuro/album-maker-api.git`
+2. Instale as dependências (caso vá desenvolver a api) com o `npm install` no diretorio [`./api`](./api)
 
-### Uso da API com o google
-Normalmente está sendo executado sem precisar do FRONTEND e da API de suport ao front
-
-1. Configure o arquivo: [`credentials.json`](./api/google/credentials.json)
-2. Inicie o servidor: `npm run google`
-
-### Uso da API de suporte
-Normalmente está sendo usada junto ao frontend
-
-2. Inicie o servidor: `npm start`
-3. Acesse o aplicativo em `http://localhost:3333`
+### Uso da nossa API com o google
+Normalmente está sendo executado sem precisar do FRONTEND.
+1. Configure o arquivo: **[`credentials.json`](./api/google/credentials.json)**
+2. Inicie o servidor: **`npm run dev`**
+3. Acesse o aplicativo em **[`localhost:3000`](http://localhost:3000)**
+4. **Rotas:** 
+   - `/listPhotos`
+   - `/listAlbums`
+   - `/createAlbum`
+   - `/updateAlbum`
 
 ### Uso do FRONTEND
-Normalmente está sendo sem a api de suport
+Ainda está em desenvolvimento e sem data previa de coclusão, mas você pode chamá-la  seguindo os passos a baixo. Vale salientar que o mesma não está conenctado a API no momento
 
 1. Utilize o `LiveServer`
 2. Se não o tiver:
